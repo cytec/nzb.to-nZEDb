@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "My Protected Area"
+AuthUserFile /PATH/TO/.htpasswd
+Require valid-user
