@@ -3,5 +3,6 @@ php_flag display_errors off
 php_flag html_errors off
 
 RewriteEngine On
+RewriteBase /
 RewriteRule ^(admin|user)($|/) - [L]
 RewriteRule ^([^/\.]+)/?$ index.php?page=$1 [QSA,L]
