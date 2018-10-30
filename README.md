@@ -9,9 +9,10 @@ This is a simple Proxy which translates nzb.to requests to a nZEDb like format f
 
 ## Installation
 
-1. Copy files to webserver
-2. Change values in `config.inc.php` most should be good to go but you'll need to set `SALT_KEY`, `TMDB_KEY` and `TORPROXY`
-3. Make sure the webserver can write to `cache`, `logs`, `nzbs` and `cookies`
-4. Set Documentroot to httpdocs
-5. Open website and generate your apikey
-6. add url and apikey to your software
+1. copy files to webserver
+2. copy `inc/config.inc.php.sample` to `inc/config.inc.php.sample`
+3. change values in `config.inc.php` most should be good to go but you'll need to set `SALT_KEY`, `TMDB_KEY` and `TORPROXY`
+4. make sure the webserver can write to `cache`, `logs`, `nzbs` and `cookies`
+5. set documentroot to httpdocs
+6. open website and generate your apikey
+7. add url and apikey to your software
