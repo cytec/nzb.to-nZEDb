@@ -70,7 +70,6 @@ class NZBTO {
   public function getDetails($nid) {
     echo $this->baseURL . "/popupdetails.php?n=". $nid;
     $result = $this->getUrl($this->baseURL . "/popupdetails.php?n=". $nid);
-    var_dump($result);
     $re = "/.*Passwort:<\\/strong><\\/span>&nbsp;([^<]*)<br \\/>/";
     preg_match($re, $result["body"], $matches);
     if($result) {

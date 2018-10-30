@@ -1,0 +1,6 @@
+nzbs/*
+cache/*
+cookies/*
+logs/*
+/httpdocs/inc/config.inc.php
+httpdocs/libs/smarty/templates_c/*

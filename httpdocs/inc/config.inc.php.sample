@@ -2,7 +2,7 @@
 
 // CAHNGE THIS:
 define('TMDB_KEY', 'TMDBAPIKEY');
-define('SALT_KEY', 'SUPERSECRETSALTK');
+define('SALT_KEY', '16CHARSALTKEYXXX');
 define('TORPROXY', 'PROXYIP:9050');
 
 //ADDITIONAL CONFIG change only if you knwo what you are doing
@@ -43,8 +43,7 @@ if (strlen($www_top) == 1) {
 // Used everywhere an href is output
 define('WWW_TOP', $www_top);
 
-var_dump($_SERVER);
-define('API_BASE', isset($_SERVER["HTTPS"]) ? "https://" : "http://" . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);
+define('API_BASE', isset($_SERVER["HTTPS"]) ? "https://" : "http://" . $_SERVER["HTTP_HOST"] . '/');
 
 define('INC_DIR', ROOT . 'inc' . DS);
 // Path to themes directory.

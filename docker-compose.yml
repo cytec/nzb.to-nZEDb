@@ -1,0 +1,7 @@
+server:
+  build: ./docker/.
+  ports:
+    - "80:80"
+    - "443:443"
+  volumes:
+    - .:/var/www
