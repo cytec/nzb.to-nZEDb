@@ -1,7 +1,24 @@
-server:
-  build: ./docker/.
-  ports:
-    - "80:80"
-    - "443:443"
-  volumes:
-    - .:/var/www
+version: "3"
+services:
+  nzbtoproxy:
+    build: ./docker/.
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/var/www
+    networks:
+      - nzbproxy
+
+  torproxy:
+    image: peterdavehello/tor-socks-proxy
+    ports:
+      - "9150:9150"
+    networks:
+      - nzbproxy
+    depends_on:
+      - nzbtoproxy
+
+networks:
+  nzbproxy:
+    driver: bridge

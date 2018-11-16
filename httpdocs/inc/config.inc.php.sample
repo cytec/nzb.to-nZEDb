@@ -3,7 +3,7 @@
 // CAHNGE THIS:
 define('TMDB_KEY', 'TMDBAPIKEY');
 define('SALT_KEY', '16CHARSALTKEYXXX');
-define('TORPROXY', 'PROXYIP:9050');
+define('TORPROXY', 'torproxy:9150');
 
 //ADDITIONAL CONFIG change only if you knwo what you are doing
 // Enable for error reporting
