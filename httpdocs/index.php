@@ -1,5 +1,9 @@
 <?php
 
+if (!file_exists('./inc/config.inc.php')) {
+  die('Please copy httpdocs/inc/config.inc.php.sample to httpdocs/inc/config.inc.php and change settings');
+}
+
 include './inc/config.inc.php';
 include INC_DIR . '/logger.php';
 include INC_DIR . '/page.php';
