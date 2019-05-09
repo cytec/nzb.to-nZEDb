@@ -106,19 +106,22 @@ if (isset($_GET["t"])) {
           $password = false;
           header('Content-type: application/x-nzb');
           if (preg_match('/{{?(.*)}}/', $result["header"], $matches)) {
-            $trimit = $matches[1];
-	    $password = trim($trimit);
+             	 
+		  $password = trim($matches[1]);
+		  
 		 if (preg_match('/(.*)}}_{{/', $password, $pmatch)) {
 	    		$password = preg_replace('/(.*)}}_{{/', '', $password);
 	   	 }
           }
           if (preg_match('/filename="?(.*)"/', $result["header"], $matches)) {
-            $fname = $matches[1];
-          } //check for {{password}} and empty space already in filename to prevent {{password}}_password error 
+            	
+		  $fname = $matches[1];
+          } 
+		//check for {{password}} and empty space already in filename to prevent {{password}}_password error 
 	  if (preg_match('/{{?(.*)}}/', $fname, $fmatch)) {
                 
                 $fname=preg_replace('/{{?(.*)}}/', '', $fname);	
-                }
+          }
 
           //remove the category prefix shit!
           if(substr($fname, 0, 3) == "TV_") {
