@@ -116,10 +116,8 @@ if (isset($_GET["t"])) {
             $fname = $matches[1];
           } //check for {{password}} and empty space already in filename to prevent {{password}}_password error 
 	  if (preg_match('/{{?(.*)}}/', $fname, $fmatch)) {
-                $replacement= '';
-                $fnametmp=preg_replace('/{{?(.*)}}/', $replacement, $fname);
-                $fname=$fnametmp;
-		
+                
+                $fname=preg_replace('/{{?(.*)}}/', '', $fname);	
                 }
 
           //remove the category prefix shit!
@@ -133,7 +131,7 @@ if (isset($_GET["t"])) {
           header('Content-Disposition: attachment; filename="'.$fname.'"');
           $nzbcontent = $result["body"];
           if($password) {
-	    $nzbcontent = $nzbto->appendPassword($nzbcontent, $password);
+	    $nzbcontent = $nzbto->appendPassword($nzbcontent, trim($password));
           }
           if($fname) {
             $logger->log("release downloaded: " . $fname);
@@ -183,6 +181,7 @@ function getIMDBData($imdbid) {
   $logger->log("Final title: " . $title);
   return $title;
 }
+
 
 $term = "overview";
 if($action == "tv") {
