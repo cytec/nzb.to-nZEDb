@@ -102,14 +102,25 @@ if (isset($_GET["t"])) {
         $nzbto->login($user, $pass);
         $result = $nzbto->downloadNZB($_GET["guid"]);
         if($result) {
-
+	//change to check for empty whitespaces in passwords and strip them from name into the nzbheader
           $password = false;
           header('Content-type: application/x-nzb');
           if (preg_match('/{{?(.*)}}/', $result["header"], $matches)) {
-            $password = $matches[1];
+             	 
+		  $password = trim($matches[1]);
+		  
+		 if (preg_match('/(.*)}}_{{/', $password, $pmatch)) {
+	    		$password = preg_replace('/(.*)}}_{{/', '', $password);
+	   	 }
           }
           if (preg_match('/filename="?(.*)"/', $result["header"], $matches)) {
-            $fname = $matches[1];
+            	
+		  $fname = $matches[1];
+          } 
+		//check for {{password}} and empty space already in filename to prevent {{password}}_password error 
+	  if (preg_match('/{{?(.*)}}/', $fname, $fmatch)) {
+                
+                $fname=preg_replace('/{{?(.*)}}/', '', $fname);	
           }
 
           //remove the category prefix shit!
@@ -123,7 +134,7 @@ if (isset($_GET["t"])) {
           header('Content-Disposition: attachment; filename="'.$fname.'"');
           $nzbcontent = $result["body"];
           if($password) {
-            $nzbcontent = $nzbto->appendPassword($nzbcontent, $password);
+	    $nzbcontent = $nzbto->appendPassword($nzbcontent, trim($password));
           }
           if($fname) {
             $logger->log("release downloaded: " . $fname);
@@ -173,6 +184,7 @@ function getIMDBData($imdbid) {
   $logger->log("Final title: " . $title);
   return $title;
 }
+
 
 $term = "overview";
 if($action == "tv") {
