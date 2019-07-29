@@ -29,9 +29,12 @@ Note: we use a small `docker-compose` file to start a `tor socks5 proxy` as well
 ## FAQ:
 
 **Es wird nur eine leere weiße Seite angezeigt**
+
 Aller wahrscheinlichkeit nach, musst du die Ordner berechtigungen anpassen.
 Im log steht etwas wie: 
+
 ```[Fri Jul 26 10:21:02.801693 2019] [:error] [pid 433] [client 192.168.0.66:61683] PHP Fatal error: Uncaught --> Smarty: unable to write file /var/www/httpdocs/libs/smarty//templates_c/wrt5d3ad40ec3a402.19341450 <-- \n thrown in /var/www/httpdocs/libs/smarty/sysplugins/smarty_internal_write_file.php on line 4```
 
 In der Konsole folgendes eingeben:
+
 `docker exec -it nzbto-nzedb_nzbtoproxy_1 bash` und dort dann `chown -R www-data:www-data /var/www` ausführen.
