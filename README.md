@@ -4,7 +4,7 @@ This is a simple Proxy which translates nzb.to requests to a nZEDb like format f
 
 ## requirements
 
-- Webserver with PHP 5
+- Webserver with PHP 5 and the mcrypt and curl extension
 - Tor SOCKS5 Proxy
 
 ## manual installation
