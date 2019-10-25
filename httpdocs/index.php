@@ -123,7 +123,7 @@ if (isset($_GET["t"])) {
           if (preg_match('/{{?(.*)}/', $fname, $fmatch)) {
                 
                 $fname = preg_replace('/{{?(.*)}}/', '', $fname);
-                $fname = preg_replace('/\`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\>|\?|\/|\""|\;|\:\_/', '', $fname);
+                $fname = preg_replace('/\`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\>|\?|\/|\""|\;|\:|\_/', '', $fname);
                 $fname = preg_replace('/\s/', '.', $fname);	
                 }
      
@@ -259,8 +259,8 @@ function getTVRAGEdata($rid) {
             $title.= " S0".$_GET["season"];
             }
             else if(strlen($_GET["season"])== 2){ 
-        $title.= " S".$_GET["season"];
-        }
+              $title.= " S".$_GET["season"];
+            }
     }
         if(isset($_GET["ep"])){
             $logger->log("Setze Episode: " .$_GET["ep"]);
