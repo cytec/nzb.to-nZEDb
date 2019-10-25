@@ -1,6 +1,6 @@
 <?php
 include INC_DIR . '/simple_html_dom.php';
-
+$multi = false;
 class NZBTO {
   private $baseURL = "http://giesn3ivtzp5z2us.onion/";
 
@@ -153,114 +153,137 @@ class NZBTO {
 
       return $mynzb->asXML();
   }
-
-  public function search($term="overview", $cat=5000) {
-    $catID = $cat;
-    $url = $this->baseURL . "?p=list&cat=13";
-    switch ($cat) {
-      case 2000:
-        //Movies
-        $url = $this->baseURL . "?p=list&cat=9";
-        break;
-      case 2050:
-        //3D Movies
-        $url = $this->baseURL .  "?p=list&cat=9&sa_Video-Format=67108864";
-        break;
-      case 2060:
-        //Bluray Movies
-        $url = $this->baseURL . "?p=list&cat=9&sa_Video-Format=458800";
-        break;
-      case 2070:
-        //DVD Movies
-        $url = $this->baseURL . "?p=list&cat=9&sa_Video-Format=8";
-        break;
-      case 5000:
-        //TV
-        $url = $this->baseURL . "?p=list&cat=13";
-        break;
-      case 5030:
-        //TV Series
-        $url = $this->baseURL . "?p=list&cat=13&sa_Video-Genre=3221225407";
-        break;
-      case 5080:
-        //TV Doku
-        $url = $this->baseURL . "?p=list&cat=13&sa_Video-Genre=536870976";
-        break;
-        // search everything!
-      default:
-        $url = $this->baseURL . "?p=list";
-        break;
-    }
-    if($term && $term != "overview") {
-      $url = $url . '&q=' . urlencode($term);
-    }
-
-    $result = $this->getUrl($url);
+//anpassen für multicat suche
+  public function search($term="overview", $multicat="5000,5045") {
+    //testvariable
+    //$multicat = "5000,5030,5045";
+    $catarr = explode(',', $multicat);
+    //array sortieren von niedrigster cat nummer 
+    
+    //final vor for schleife deklarieren um mehrere suchen im array zu speichern
     $final= array();
-    if($result) {
-      $html = str_get_html($result["body"]);
-      $table = $html->find('.dataTabular');
-      if($table && count($table)) {
-        $table = $html->find('.dataTabular')[0];
-      } else {
-        return $final;
-      }
-      if(count($table) > 0) {
-        $tbody = $table->find('tbody[id*=tbody-]');
-
-        foreach($tbody as $element) {
-          $current = array();
-          $tr = $element->find('tr');
-
-          $pid   = str_replace("tbody-","",$element->getAttribute('id'));
-          $current["guid"] = str_replace("tbody-","",$element->getAttribute('id'));
-
-          $title = $tr[0]->find('.fleft a');
-          $title = $title[0]->plaintext;
-          $current["searchname"] = $title;
-
-          $poster= $tr[0]->find('.fleft a');
-          $poster= trim($poster[1]->plaintext);
-          $current["fromname"] = $poster;
-
-          $datum = $tr[0]->find('.final span',0)->getAttribute('title');
-          $datum = str_replace("Genaues Datum/Zeit: ", "", $datum);
-          setlocale(LC_TIME, "en_US");
-          $datum = strftime("%a, %d %b %Y %T +0200",strtotime($datum));
-          $current["adddate"]  = $datum;
-
-          $size  = $tr[1]->find('.fileSize');
-          $size  = $size[0]->plaintext;
-          $size  = str_replace("(","", $size);
-          $size  = str_replace(")","", $size);
-          $size  = $this->converterFileSize($size);
-          $current["size"] = $size;
-
-          $cat   = $tr[0]->children(1);
-          $cat   = $cat->find('a');
-          $cat   = $cat[0]->plaintext;
-          $current["category_name"] = $cat;
-
-          //set extended data
-          $current["totalpart"] = "50";
-          // $current["poster"] = "nzbto@nzb.to";
-          $current["prematch"] = "0";
-          $current["grabs"] = "0";
-          $current["comments"] = "0";
-          $current["passwordstatus"] = "0";
-          $current["group_name"] = "";
-          // $current["category"] = $this->catIDMap[$cat];
-          $current["category"] = $catID;
-          $current["rageID"] = -1;
-          $current["imdbID"] = "";
-          $current["tvtitle"] = "";
-          $current["tvairdate"] = "";
-          $current["season"] = "";
-          $current["season"] = "";
-          $current["episode"] = "";
-          $current["postdate"] = $datum;
-
-          array_push($final, $current);
+    foreach($catarr as $cat){
+        
+        $catID = $catsort;
+        $url = $this->baseURL . "?p=list&cat=13";
+        switch ($cat) {
+          case 2000:
+            //Movies
+            $url = $this->baseURL . "?p=list&cat=9";
+            break;
+           case 2045:
+            //UHD Movies
+            $url = $this->baseURL .  "?p=list&cat=9&sa_Video-Format=134217728";
+            break;
+          case 2050:
+            //3D Movies
+            $url = $this->baseURL .  "?p=list&cat=9&sa_Video-Format=67108864";
+            break;
+          case 2060:
+            //Bluray Movies
+            $url = $this->baseURL . "?p=list&cat=9&sa_Video-Format=458800";
+            break;
+          case 2070:
+            //X265
+            $url = $this->baseURL . "?p=list&cat=9&sa_Video-Format=268435456";
+            break;
+          case 5000:
+            //TV
+            $url = $this->baseURL . "?p=list&cat=13";
+            break;
+          case 5030:
+            //TV Series
+            $url = $this->baseURL . "?p=list&cat=13&sa_Video-Genre=3221225407";
+            break;
+          case 5045:
+            // UHD TV Series
+            $url = $this->baseURL . "?p=list&cat=13&sa_Video-Format=134217728";
+            break;
+          case 5080:
+            //TV Doku
+            $url = $this->baseURL . "?p=list&cat=13&sa_Video-Genre=536870976";
+            break;
+            // search everything!
+          default:
+            $url = $this->baseURL . "?p=list";
+            break;
+        }//http://giesn3ivtzp5z2us.onion/?p=list&q=Arrow+S05&cat=13&sort=post_date&order=desc&amount=300
+        if($term && $term != "overview") {
+          $url = $url . '&q=' . urlencode($term);
+        }
+    
+        $result = $this->getUrl($url);
+        //final muss vorher deklariert werden um multicat suche zu ermoeglichen
+        //$final= array();
+        if($result) {
+          $html = str_get_html($result["body"]);
+          $table = $html->find('.dataTabular');
+          if($table && count($table)) {
+            $table = $html->find('.dataTabular')[0];
+          } else {
+            if (!$multi){
+                return $final;
+                }
+           break;
+          }
+          if(count($table) > 0) {
+            $tbody = $table->find('tbody[id*=tbody-]');
+    
+            foreach($tbody as $element) {
+              $current = array();
+              $tr = $element->find('tr');
+    
+              $pid   = str_replace("tbody-","",$element->getAttribute('id'));
+              $current["guid"] = str_replace("tbody-","",$element->getAttribute('id'));
+    
+              $title = $tr[0]->find('.fleft a');
+              $title = $title[0]->plaintext;
+              
+              $current["searchname"] = $title;
+    
+              $poster= $tr[0]->find('.fleft a');
+              $poster= trim($poster[1]->plaintext);
+              $current["fromname"] = $poster;
+    
+              $datum = $tr[0]->find('.final span',0)->getAttribute('title');
+              $datum = str_replace("Genaues Datum/Zeit: ", "", $datum);
+              setlocale(LC_TIME, "en_US");
+              $datum = strftime("%a, %d %b %Y %T +0200",strtotime($datum));
+              $current["adddate"]  = $datum;
+    
+              $size  = $tr[1]->find('.fileSize');
+              $size  = $size[0]->plaintext;
+              $size  = str_replace("(","", $size);
+              $size  = str_replace(")","", $size);
+              $size  = $this->converterFileSize($size);
+              $current["size"] = $size;
+    
+              $cat   = $tr[0]->children(1);
+              $cat   = $cat->find('a');
+              $cat   = $cat[0]->plaintext;
+              $current["category_name"] = $cat;
+    
+              //set extended data
+              $current["totalpart"] = "50";
+              // $current["poster"] = "nzbto@nzb.to";
+              $current["prematch"] = "0";
+              $current["grabs"] = "0";
+              $current["comments"] = "0";
+              $current["passwordstatus"] = "0";
+              $current["group_name"] = "";
+              // $current["category"] = $this->catIDMap[$cat];
+              $current["category"] = $catID;
+              $current["rageID"] = -1;
+              $current["imdbID"] = "";
+              $current["tvtitle"] = "";
+              $current["tvairdate"] = "";
+              $current["season"] = "";
+              $current["season"] = "";
+              $current["episode"] = "";
+              $current["postdate"] = $datum;
+    
+              array_push($final, $current);
+            }
         }
       }
     }

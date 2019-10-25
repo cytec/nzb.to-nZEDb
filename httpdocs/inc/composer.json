@@ -1,0 +1,7 @@
+{
+    "require": {
+        "fabianbeiner/php-imdb-grabber": "^6.1",
+        "joshpinkney/tv-maze-php-api": "dev-master",
+        "phpseclib/mcrypt_compat": "^1.0"
+    }
+}

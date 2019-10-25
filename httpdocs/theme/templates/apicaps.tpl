@@ -14,12 +14,14 @@
 
 	<categories>
 	<category id="2000" name="Filme">
-		<subcat id="2050" name="3D"/>
-		<subcat id="2060" name="BluRay"/>
-		<subcat id="2070" name="DVD"/>
+		<subcat id="2045" name="UHD-Filme"/>
+        <subcat id="2050" name="3D"/>
+        <subcat id="2060" name="BluRay"/>
+		<subcat id="2070" name="X265"/>
 	</category>
 	<category id="5000" name="TV">
 		<subcat id="5030" name="Series"/>
+        <subcat id="5030" name="UHD-Series"/>
 		<subcat id="5080" name="Dokus"/>
 	</category>
 	</categories>

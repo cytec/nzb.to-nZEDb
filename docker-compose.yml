@@ -3,8 +3,8 @@ services:
   nzbtoproxy:
     build: ./docker/.
     ports:
-      - "80:80"
-      - "443:443"
+      - "1080:1080"
+      - "1443:1443"
     volumes:
       - .:/var/www
     networks:

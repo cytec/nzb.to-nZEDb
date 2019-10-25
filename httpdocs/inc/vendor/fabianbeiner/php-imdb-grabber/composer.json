@@ -1,0 +1,26 @@
+{
+  "name": "fabianbeiner/php-imdb-grabber",
+  "type": "library",
+  "description": "This PHP library enables you to scrape data from IMDB.com.",
+  "keywords": [
+    "IMDb",
+    "API",
+    "Client"
+  ],
+  "homepage": "https://github.com/FabianBeiner/PHP-IMDB-Grabber",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Fabian Beiner",
+      "email": "fb@fabianbeiner.de",
+      "homepage": "https://fabianbeiner.de/"
+    }
+  ],
+  "require": {
+    "ext-curl": "*",
+    "php": ">=5.6.0"
+  },
+  "autoload": {
+        "files": ["imdb.class.php"]
+  }
+}
