@@ -153,7 +153,7 @@ class NZBTO {
 
       return $mynzb->asXML();
   }
-//anpassen für multicat suche
+//anpassen fÃ¼r multicat suche
   public function search($term="overview", $multicat="5000,5045") {
     //testvariable
     //$multicat = "5000,5030,5045";
@@ -207,14 +207,12 @@ class NZBTO {
           default:
             $url = $this->baseURL . "?p=list";
             break;
-        }//http://giesn3ivtzp5z2us.onion/?p=list&q=Arrow+S05&cat=13&sort=post_date&order=desc&amount=300
+        }
         if($term && $term != "overview") {
           $url = $url . '&q=' . urlencode($term);
         }
     
         $result = $this->getUrl($url);
-        //final muss vorher deklariert werden um multicat suche zu ermoeglichen
-        //$final= array();
         if($result) {
           $html = str_get_html($result["body"]);
           $table = $html->find('.dataTabular');
