@@ -29,7 +29,7 @@ Note: we use a small `docker-compose` file to start a `tor socks5 proxy` as well
 ## Note from r0x0r
 Changed quite a bit to the password handling and search in general normalizen titles and getting rid of passwords with spaces double passwords and so on. Its all a bit hacky,
 but as soon as i have more time I'll make finishing touches. I packaged the libs and hope i haven't forgotten anything important. php files are chmod 0644 and dirs
-to the default 0755 with www-data:www-data as user.
+to the default 0755.
 I added a UHD search and search by imdb,tmdb aswell as TVRage and tvdb. Right now there is a problem when more than one ID is sent (which nzbhydra does...) It will repeat the search for each ID.
 I will improve that code once i got the time for it and also will add the remaining Sections like Audiobooks/Mp3 since those need a whole new overhaul of the matching it will be 
 quite time consuming so that is low_priority untill i finished the api searches by ids. 
