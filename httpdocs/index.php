@@ -1,6 +1,5 @@
 <?php
-//qCvupjia1LkfgLEc5nwjGHikZiGGJmBH6b1x8KopQr7qWH3ITC%2FUYU1dPHxtGhpI
-//http://localhost/api?apikey=qCvupjia1LkfgLEc5nwjGHikZiGGJmBH6b1x8KopQr7qWH3ITC%2FUYU1dPHxtGhpI&t=tv&cat=5000&q=Arrow%20S03
+
 if (!file_exists('./inc/config.inc.php')) {
   die('Please copy httpdocs/inc/config.inc.php.sample to httpdocs/inc/config.inc.php and change settings');
 }
