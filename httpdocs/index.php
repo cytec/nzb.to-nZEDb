@@ -18,6 +18,7 @@ $page = new Page();
 $logger = new Logger("nzbto2newznab.txt", null);
 $cache = new Cache();
 $hash = new Security();
+$regex = false;
 // tvmaze class
 use JPinkney\TVMaze\Client as TVMaze;
 
@@ -99,6 +100,14 @@ if (isset($_GET["t"])) {
         $action = "movie";
         $template = "apiresult.tpl";
         break;
+      case 'music':
+        $action = "audio";
+        $template = "apiresult.tpl";
+        break;
+      case 'audio':
+        $action = "audio";
+        $template = "apiresult.tpl";
+        break;
       case 'tvsearch':
         $action = "tv";
         $template = "apiresult.tpl";
@@ -107,15 +116,15 @@ if (isset($_GET["t"])) {
         $nzbto->login($user, $pass);
         $result = $nzbto->downloadNZB($_GET["guid"]);
         if($result) {
-	//change to check for empty whitespaces in passwords and strip them from name into the nzbheader
+	//change to check for empty whitespaces in passwords and strip them from name into the nzbheader -> change to str_replace
           $password = false;
           header('Content-type: application/x-nzb');
           if (preg_match('/{{?(.*)}}/', $result["header"], $matches)) {
             $trimit = $matches[1];
-	    $password = trim($trimit);
-		 if (preg_match('/(.*)}}_{{/', $password, $pmatch)) {
-	    		$password = preg_replace('/(.*)}}_{{/', '', $password);
-	   	 }
+	          $password = trim($trimit);
+		        if (preg_match('/(.*)}}_{{/', $password, $pmatch)) {
+	    		     $password = preg_replace('/(.*)}}_{{/', '', $password);
+	   	     }
           }
           if (preg_match('/filename="?(.*)"/', $result["header"], $matches)) {
             $fname = $matches[1];
@@ -123,7 +132,7 @@ if (isset($_GET["t"])) {
           if (preg_match('/{{?(.*)}/', $fname, $fmatch)) {
                 
                 $fname = preg_replace('/{{?(.*)}}/', '', $fname);
-                $fname = preg_replace('/\`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\>|\?|\/|\""|\;|\:|\_/', '', $fname);
+                $fname = preg_replace('/\`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\>|\?|\/|\"|\;|\:|\_/', '', $fname);
                 $fname = preg_replace('/\s/', '.', $fname);	
                 }
      
@@ -163,6 +172,17 @@ if (isset($_GET["t"])) {
  *  Original Title as Fallback
  *  needed for CouchPotato Search
  */
+function removeGarbage($garbage){
+  $noshit = preg_replace('/\`|\~|\!|\@|\#|\$|\%|\^|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\>|\?|\/|\"|\;|\:/', '', $garbage);
+  $noshit = trim($noshit);
+  $noshit = preg_replace('/(\s+-\s+)|(\.+-\.+)/', '-', $noshit);
+  $noshit = preg_replace('/\s+/','.',$noshit);
+  $noshit = str_replace("-.", "-", $noshit);
+  $noshit = str_replace(".-", "-", $noshit);
+  $noshit = str_replace("..", ".", $noshit);
+  
+  return $noshit;
+}
 function getIMDBData($imdbid) {
   global $logger;
   $logger->log("Requesting Name from themoviedb");
@@ -195,32 +215,41 @@ function getIMDBData($imdbid) {
   return $title;
 }
 //tv id search
+$title=false;
+$origsearch=false;
+
 function getTVRAGEdata($rid) {
-    $tv = new TVMaze();
+  if (!$title && !$origsearch) {
     global $logger;
-    if(isset($_GET["q"])){
-            $logger->log("Requesting imdbid via from TVMAZE with Term: " .$rid);
-            $tvmazeShow = $tv->TVMaze->singleSearch("$rid");
-            $imdbid = $tvmazeShow[0]->externalIDs['imdb'];
-            }
-    if(isset($_GET["rid"])){
-            $logger->log("Requesting imdbid via TVRAGEid from TVMAZE");
-            $tvmazeShow = $tv->TVMaze->getShowBySiteID("tvrage",$rid);
-            $imdbid = $tvmazeShow->externalIDs['imdb'];
-            }
-    if(isset($_GET["tvdbid"])){
-            $logger->log("Requesting imdbid via TVDBid from TVMAZE");
-            $tvmazeShow = $tv->TVMaze->getShowBySiteID("thetvdb",$rid);
-            $imdbid = $tvmazeShow->externalIDs['imdb'];
-            }
-    if(isset($_GET["tvmazeid"])){
-            $logger->log("Requesting imdbid via TVMAZEid from TVMAZE");
-            $tvmazeShow = $tv->TVMaze->getShowByShowID($rid);
-            $imdbid = $tvmazeShow[0]->externalIDs['imdb'];
-            }
-    if(!$imdbid){
-        $logger->log("TVMAZE did not return result, fallback to original searchquery");
-        
+    # nur solang wir noch keinen title haben
+    if(!isset($_GET["imdbid"])){
+
+      $tv = new TVMaze();
+      
+
+      if(isset($_GET["q"])){
+              $logger->log("Requesting imdbid via from TVMAZE with Term: " .$rid);
+              $tvmazeShow = $tv->TVMaze->singleSearch("$rid");
+              $imdbid = $tvmazeShow[0]->externalIDs['imdb'];
+              }
+      if(isset($_GET["rid"])){
+              $logger->log("Requesting imdbid via TVRAGEid from TVMAZE");
+              $tvmazeShow = $tv->TVMaze->getShowBySiteID("tvrage",$rid);
+              $imdbid = $tvmazeShow->externalIDs['imdb'];
+              }
+      if(isset($_GET["tvdbid"])){
+              $logger->log("Requesting imdbid via TVDBid from TVMAZE");
+              $tvmazeShow = $tv->TVMaze->getShowBySiteID("thetvdb",$rid);
+              $imdbid = $tvmazeShow->externalIDs['imdb'];
+              }
+      if(isset($_GET["tvmazeid"])){
+              $logger->log("Requesting imdbid via TVMAZEid from TVMAZE");
+              $tvmazeShow = $tv->TVMaze->getShowByShowID($rid);
+              $imdbid = $tvmazeShow[0]->externalIDs['imdb'];
+              }
+      if(!$imdbid){
+          $logger->log("TVMAZE did not return result, fallback to original searchquery : ".$rid."und ".$imdbid );
+          }  
     }
     if(isset($_GET["imdbid"])){
         $logger->log("Setting imdbid for tvsearch");
@@ -228,7 +257,7 @@ function getTVRAGEdata($rid) {
         $imdbid.=$_GET["imdbid"];
         }
     if($imdbid){
-         $logger->logWithArray("TVMAZE returned: ", "INFO", array('imdbid'=>$imdbid, 'id' => $rid));
+         $logger->logWithArray("TVMAZE returned: ", "INFO", array('imdbid'=>$imdbid, 'id' => $rid ?? 'keine id gesetzt'));
          $title=false;
          if(!$title){
             $IMDB = new IMDB('http://de.imdb.com/title/'.$imdbid); 
@@ -250,38 +279,50 @@ function getTVRAGEdata($rid) {
                  $title = trim($results[0]);//nur wenn per tvmaze gesucht als array.
                  
             }
-           
-            
-    if (isset($_GET["season"])) {
-        $logger->log("Setze season: " .$_GET["season"]);
+            global $regex; //"/".$regex."[\.\-]S(\d+)[\.\-]?(E(\d+))?([\.\-])/i";
+            $regtit = removeGarbage($title);
+            $regex = "/^".$regtit."[\.\-]S(\d+)[\.\-]?(E(\d+))?([\.\-])/i";
+          if(isset($_GET["season"])) {
+            $season=$_GET["season"];
+            $logger->log("Setze season: " .$season);
         
-        if(strlen($_GET["season"])==1){
-            $title.= " S0".$_GET["season"];
+            if(strlen($season) == 1){
+
+              $regex="/^".$regtit."[\.\-]S(0".$season.")[\.\-]?(E(\d+))?([\.\-])/i";
+              $title.= " S0".$season;
+
             }
-            else if(strlen($_GET["season"])== 2){ 
-              $title.= " S".$_GET["season"];
+              if(strlen($season) == 2){ 
+              $title.= " S".$_GET["season"].")";
+              $regex="/^".$regtit."[\.\-]S(".$season.")[\.\-]?(E(\d+))?([\.\-])/i";
             }
-    }
-        if(isset($_GET["ep"])){
-            $logger->log("Setze Episode: " .$_GET["ep"]);
-            $ep = $_GET["ep"];
-            if(strlen($ep)==1){
+          
+              if(isset($_GET["ep"])){
+              $logger->log("Setze Episode: " .$_GET["ep"]);
+              $ep = $_GET["ep"];
+              if(strlen($ep)==1){
                 $title.="E0". $ep;
-            }
-            else{
+                if(strlen($season) == 1){$regex="/^".$regtit."[\.\-]S(0".$season.")[\.\-]?(E(0".$ep."))?([\.\-])/i";}
+                if(strlen($season) == 2){$regex="/^".$regtit."[\.\-]S(".$season.")[\.\-]?(E(0".$ep."))?([\.\-])/i";}
+              }
+              else{
                 $title.="E". $ep;
-            }
+                if(strlen($season) == 1){$regex="/^".$regtit."[\.\-]S(0".$season.")[\.\-]?(E(0".$ep."))?([\.\-])/i";}
+                if(strlen($season) == 2){$regex="/^".$regtit."[\.\-]S(".$season.")[\.\-]?(E(0".$ep."))?([\.\-])/i";}
+
+             }
         }
     }
-    
-    $title=preg_replace('/\`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\>|\?|\/|\""|\;|\:/', '', $title);
-    $logger->log("Final Search Term: " . $title);
-    return preg_replace('/\s/','.',$title);
   }
-         $origsearch= trim($_GET["q"]);
+    
+    $title = removeGarbage($title);
+    $logger->log("Final Search Term: " . $title . "with Regex" .$regex);
+    return $title;
+  }
+         $origsearch= trim($rid);
          return $origsearch;
     }
-  
+  }
 
 //tmdbid search
 function getTMDBData($tmdbid) {
@@ -302,37 +343,38 @@ function getTMDBData($tmdbid) {
   $logger->log("Final title: " . $title);
   return $title;
 }
+// variables needed for the entire script
+
 
 $term = "overview";
 if($action == "tv") {
   $template = "apiresult.tpl";
-  if(!isset($_GET["rid"])||!isset($_GET["season"])||!isset($_GET["imdbid"])||!isset($_GET["tvmazeid"])||!isset($_GET["tvdbid"]))
-    {
-    $term = isset($_GET["q"]) ? getTVRAGEdata($_GET["q"]) : $term;
-    }
-  // checking for tvrage search
-  $term = isset($_GET["season"]) ? getTVRAGEdata($_GET["q"]) : $term;
-  $term = isset($_GET["rid"]) ? getTVRAGEData($_GET["rid"]) : $term;
-  $term = isset($_GET["tvdbid"]) ? getTVRAGEData($_GET["tvdbid"]) : $term;
-  $term = isset($_GET["tvmazeid"]) ? getTVRAGEData($_GET["tvmazeid"]) : $term;
-  $term = isset($_GET["imdbid"]) ? getTVRAGEData($_GET["imdbid"]) : $term;
+  //prio to search per imdbid only do other searches if imdb not set
+  if(isset($_GET["imdbid"]) && !$title){ $term = getTVRAGEData($_GET["imdbid"]) ?? $term;}
+  if(isset($_GET["q"]) && !isset($_GET["imdbid"]) && !$title){$term = getTVRAGEdata($_GET["q"] ?? $term);}
+  if(isset($_GET["rid"]) && !isset($_GET["imdbid"]) && !$title){$term = getTVRAGEdata($_GET["rid"] ?? $term);}
+  if(isset($_GET["tvdbid"]) && !isset($_GET["imdbid"]) && !$title){$term = getTVRAGEdata($_GET["tvdbid"] ?? $term);}
+  if(isset($_GET["tvmazeid"]) && !isset($_GET["imdbid"]) && !$title){$term = getTVRAGEdata($_GET["tvmazeid"] ?? $term);}
   
-  $cat = ($cat != false) ? $cat : 5000;
+  $cat = $cat ?? 5000;
   $logger->log("We are looking for a TV Show");
 } elseif ($action == "movie") {
   $template = "apiresult.tpl";
-
-  $cat = ($cat != false) ? $cat : 2000;
-  $term = isset($_GET["q"]) ? $_GET["q"] : "overview";
-  $term = isset($_GET["imdbid"]) ? getIMDBData($_GET["imdbid"]) : $term;
-  $term = isset($_GET["tmdbid"]) ? getTMDBData($_GET["tmdbid"]) : $term;
-
-  
-
+  $cat = $cat ?? 2000;
+  if(isset($_GET["imdbid"]) && !$title){ $term = getIMDBData($_GET["imdbid"]) ?? $term;}
+  if(isset($_GET["q"]) && !isset($_GET["imdbid"]) && !$title){$term = isset($_GET["q"]) ? $_GET["q"] : "overview";}
+  if(isset($_GET["tmdbid"]) && !isset($_GET["imdbid"]) && !$title){ $term = isset($_GET["tmdbid"]) ? getTMDBData($_GET["tmdbid"]) : $term;}
   $logger->log("We are looking for a Movie");
+
+} elseif ($action == "audio") {
+  $template = "apiresult.tpl";
+  $cat = $cat ?? 3000;
+  $term = isset($_GET["q"]) ? $_GET["q"] : "overview";  
+  $logger->log("We are doing a audio search with catID " .$cat);
+
 } elseif ($action == "search") {
   $template = "apiresult.tpl";
-  $cat = ($cat != false) ? $cat : 1000;
+  $cat = $cat ?? 1000;
   $term = isset($_GET["q"]) ? $_GET["q"] : "overview";
   $term = isset($_GET["imdbid"]) ? getIMDBData($_GET["imdbid"]) : $term;
   $logger->log("We are doing a global search");
@@ -349,64 +391,64 @@ $cache->check($cachename, $apikey);
 $xx = $nzbto->login($user, $pass);
 $rel = $nzbto->search($term, $cat);
 //releases checke
-(int) $i = 0;
-foreach ($rel as $key => $value){
-            $nopass = $value["searchname"];
-            $nospace = false;
-            
-            if(preg_match('/{{?(.*)}?/', $nopass, $matches)){
-                $nopass = preg_replace("/{{?(.*)}?/", '', $nopass);
-                $rel[$key]["searchname"]= $nopass;
-                $matches[0] = str_replace(' ', '', $matches[0]);
-                $logger->log("Stripped pw".$matches[0]." new rlsname:" .$value["searchname"]);
-            }
-            $nospace = preg_replace('/\`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\>|\?|\/|\""|\;|\:/', '', $nopass);
-          //  $logger->log("Stripped spaces new rlsname-1:" .$nospace);
-            $nospace=preg_replace('/(\s?-\s)|(\.-\.)|(\s)/', '.', $nospace);
-          //  $logger->log("Stripped spaces new rlsname-2:" .$nospace);
-           // $nospace = preg_replace('/\s/', '.', $nospace);
-            $nospace = str_replace("..", ".", $nospace);
-            $pattern = '/^\d{2}.' .str_replace(" ", ".", trim($term)). '/i';
-            //$logger->log("Checking for leading numbers with regex:" .$pattern);
-            $nospace = preg_replace($pattern, str_replace(" ", ".", trim($term)), $nospace);
-            
-           // $logger->log("Stripped spaces new rlsname-3:" .$nospace);
-            $rel[$key]["searchname"]= $nospace;
-            $logger->log("Rls #". ++$i. " : " .$nospace . " Title normalized.");
-            //unset($rel[$key]);
-        
-}
-//for movies, check if movie start's with name from themoviedb
-if(substr($cat, 0, 1) == 2 && trim($term) != "overview" || isset($_GET["imdbid"])) {
+function normalizeTitle($tit,$counter,$cat) {
+  global $logger; 
+    $nopass = $tit;
+    $nospace = false;
+    $tmpass = false;
+    
+    if(preg_match('/{{?(.*)}?/', $nopass, $matches)){
+        $nopass = preg_replace("/{{?(.*)}?/", '', $nopass);
+        $tmpass = str_replace(' ', '', $matches[0]);
+    }
+    $nospace = removeGarbage($nopass);
+    $pattern = '/^\d{2}.' .str_replace(" ", ".", trim($nospace)). '/i';
+    $nospace = preg_replace($pattern, str_replace(" ", ".", trim($nospace)), $nospace);
 
+
+    if(!$tmpass){
+      $logger->log("Rls #". $counter. " : " .$nospace . " <-- normalized Title - Cat.id" .$cat);
+      
+    }
+    else{
+      $logger->log("Rls #". $counter. " : " .$nospace . " <-- normalized Title,Stripped Password:".$tmpass);
+     
+  }
+return $nospace;
+}
+
+function isMatch($rls, $cat, $term){
+  global $logger;
+  global $regex;
   
-  foreach ($rel as $key => $value) {
-   
-    $expr = "/.*" . preg_replace('/\s/','.',$term) . "(\s|\.)(\d{4})?.*$/i";
-    if(!preg_match($expr, $value["searchname"])){
-      $logger->logWithArray("regex doesn't match term", "DEBUG", array("regex" => $expr, "term" => $value["searchname"]));
-      unset($rel[$key]);
-    };
+  //audio
+  if(substr($cat, 0, 1)==3 && trim($term) != "overview") {
+    return true;
   }
+  //Movies
+  if(substr($cat, 0, 1)==2 && trim($term) != "overview") {
+    $expr = "/.*" . preg_replace('/\s/','.',$term) . "(\s|\.)?(\d{4})?.*$/i";
+    if(!preg_match($expr, $rls)){
+      $logger->logWithArray("regex doesn't match term-MOV", "DEBUG", array("REGEX" => $expr, "RLS" => $rls));
+      return false;
+    }
+    return true;
+  }
+
+  //TV
+  //if(substr($cat, 0, 1)==5 && trim($term) == "overview"){ return true;}
+  if(substr($cat, 0, 1)==5 && trim($term) != "overview"){
+    
+    if(!preg_match($regex, $rls)){
+      $logger->logWithArray("regex doesn't match term-TV", "DEBUG", array("regex" => $regex, "term" => $term, "cat" => $cat));
+
+      return false;
+    }
+    return true;
+  }
+  return true;
 }
-//for tvshows, check if tvshow start's with name from imdbakas
-if(substr($cat, 0, 1) == 5 && trim($term) != "overview" | isset($_GET["rid"]) | isset($_GET["q"]) | isset($_GET["season"])) {
-  $replace = array(" - ", "_", ",", "!");
-  $tosearch = $term;
-  foreach ($replace as $repl) {
-    $tosearch = str_replace($repl, ".", $tosearch);
-  }
-  foreach ($rel as $key => $value) {
-    $expr = "/^" . $tosearch . "(E\d{2}).*$|(\s\d{4}).*$|(S\d{2}).*$|(\sS\d{2}E\d{2}).*$|(.*STAFFEL\s\d*).*$|(.*SEASON\s\d*).*$/i";
-    if(isset($_GET["ep"])&isset($_GET["season"])&isset($_GET["rid"])){
-        $expr = "/^" . str_replace(" ",".*",$tosearch) . ".*$/i";
-        }  
-    if(!preg_match($expr, $value["searchname"])){
-      $logger->logWithArray("regex doesn't match term", "DEBUG", array("regex" => $expr, "term" => $value["searchname"]));
-      unset($rel[$key]);
-    };
-  }
-}
+
 $logger->log("Search returned " . count($rel) . " results", "DEBUG");
 
 $page->smarty->assign('title', 'nzb.to ' . $action . ' -> ' . $term);

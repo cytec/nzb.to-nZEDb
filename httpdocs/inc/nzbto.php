@@ -11,9 +11,11 @@ class NZBTO {
 
   private $catIDMap = array(
     "TV" => 5000,
+    "TV+WEB" => 5000,
     "Filme" => 2000,
     "Spiele" => 1000,
     "Musik" => 3000,
+    "Books" => 3030,
     "Software" => 4000
   );
 
@@ -155,18 +157,21 @@ class NZBTO {
   }
 //anpassen für multicat suche
   public function search($term="overview", $multicat="5000,5045") {
-    //testvariable
+    //if more than one category given split into array and sort
     //$multicat = "5000,5030,5045";
-    $catarr = explode(',', $multicat);
-    //array sortieren von niedrigster cat nummer 
-    
+      $catarr = explode(',', $multicat);
+      sort($catarr);
+
+
     //final vor for schleife deklarieren um mehrere suchen im array zu speichern
     $final= array();
-    foreach($catarr as $cat){
+    // counter for normalizeTitle()
+    $counter=1;
+    foreach($catarr as $catID){
         
-        $catID = $catsort;
+      
         $url = $this->baseURL . "?p=list&cat=13";
-        switch ($cat) {
+        switch ($catID) {
           case 2000:
             //Movies
             $url = $this->baseURL . "?p=list&cat=9";
@@ -187,6 +192,26 @@ class NZBTO {
             //X265
             $url = $this->baseURL . "?p=list&cat=9&sa_Video-Format=268435456";
             break;
+          case 2080:
+            //MP4 TVCAP
+            $url = $this->baseURL . "?p=list&cat=9&sa_Video-Format=209715";
+            break;
+          case 3000:
+            //Audiosearch 
+            $url = $this->baseURL . "?p=list&cat=10";
+            break;
+          case 3010:
+            //MP3 
+            $url = $this->baseURL . "?p=list&cat=10&sa_Audio-Format=4";
+            break;
+          case 3030: 
+            //Audiobooks
+            $url = $this->baseURL . "?p=list&cat=4&sa_Book-Typ=2";
+            break;
+          case 3040:
+            //FLAC
+            $url = $this->baseURL . "?p=list&cat=10&sa_Audio-Format=256";
+            break;            
           case 5000:
             //TV
             $url = $this->baseURL . "?p=list&cat=13";
@@ -235,9 +260,9 @@ class NZBTO {
               $current["guid"] = str_replace("tbody-","",$element->getAttribute('id'));
     
               $title = $tr[0]->find('.fleft a');
-              $title = $title[0]->plaintext;
-              
+              $title = normalizeTitle($title[0]->plaintext,$counter, $catID);
               $current["searchname"] = $title;
+              $counter++;
     
               $poster= $tr[0]->find('.fleft a');
               $poster= trim($poster[1]->plaintext);
@@ -256,10 +281,10 @@ class NZBTO {
               $size  = $this->converterFileSize($size);
               $current["size"] = $size;
     
-              $cat   = $tr[0]->children(1);
-              $cat   = $cat->find('a');
-              $cat   = $cat[0]->plaintext;
-              $current["category_name"] = $cat;
+              $category   = $tr[0]->children(1);
+              $category   = $category->find('a');
+              $category   = $category[0]->plaintext;
+              $current["category_name"] = $category;
     
               //set extended data
               $current["totalpart"] = "50";
@@ -269,7 +294,7 @@ class NZBTO {
               $current["comments"] = "0";
               $current["passwordstatus"] = "0";
               $current["group_name"] = "";
-              // $current["category"] = $this->catIDMap[$cat];
+              $current["category"] = $this->catIDMap[$category];
               $current["category"] = $catID;
               $current["rageID"] = -1;
               $current["imdbID"] = "";
@@ -279,8 +304,10 @@ class NZBTO {
               $current["season"] = "";
               $current["episode"] = "";
               $current["postdate"] = $datum;
-    
-              array_push($final, $current);
+              if (isMatch($title,$catID,$term)) {
+                array_push($final, $current);
+              }
+              
             }
         }
       }

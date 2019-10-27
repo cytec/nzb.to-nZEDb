@@ -9,7 +9,7 @@
 		<search available="yes"/>
 		<tv-search available="yes"/>
 		<movie-search available="yes"/>
-		<audio-search available="no"/>
+		<audio-search available="yes"/>
 	</searching>
 
 	<categories>
@@ -18,10 +18,16 @@
         <subcat id="2050" name="3D"/>
         <subcat id="2060" name="BluRay"/>
 		<subcat id="2070" name="X265"/>
+		<subcat id="2080" name="MP4"/>
+	</category>
+	<category id="3000" name="Audio">
+		<subcat id="3010" name="MP3"/>
+		<subcat id="3030" name="Audiobooks"/>
+		<subcat id="3040" name="FLAC"/>
 	</category>
 	<category id="5000" name="TV">
 		<subcat id="5030" name="Series"/>
-        <subcat id="5030" name="UHD-Series"/>
+        <subcat id="5045" name="UHD-Series"/>
 		<subcat id="5080" name="Dokus"/>
 	</category>
 	</categories>
