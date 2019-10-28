@@ -11,7 +11,6 @@
 		<music-search available="yes" supportedParams="q,artist,album"/>
 		<audio-search available="yes" supportedParams="q,artist,album"/>
 	</searching>
-
 	<categories>
 	<category id="2000" name="Filme">
 		<subcat id="2045" name="UHD-Filme"/>

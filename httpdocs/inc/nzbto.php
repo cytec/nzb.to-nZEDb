@@ -161,6 +161,7 @@ class NZBTO {
     //$multicat = "5000,5030,5045";
       $catarr = explode(',', $multicat);
       sort($catarr);
+      global $logger;
 
 
     //final vor for schleife deklarieren um mehrere suchen im array zu speichern
@@ -168,7 +169,7 @@ class NZBTO {
     // counter for normalizeTitle()
     $counter=1;
     foreach($catarr as $catID){
-        
+         $logger->log("Results from catID " .$catID);
       
         $url = $this->baseURL . "?p=list&cat=13";
         switch ($catID) {

@@ -369,16 +369,13 @@ if($action == "tv") {
   $cat = $cat ?? 3000;
   if(!isset($_GET["artist"]) && !isset($_GET["album"])){
     $term = isset($_GET["q"]) ? $_GET["q"] : "overview";
-    $logger->log("We are doing a audio search with catID " .$cat);
+    $logger->log("We are doing a audio search with catID " .$cat. " and term: ".$term);
   }
   if(isset($_GET["artist"]) && isset($_GET["album"])){
     $term=$_GET["artist"];
     $term.=" ".$_GET["album"];
+    $logger->log("We are doing a Music-search with catID " .$cat. " and term: ".$term );
     }
-
-  
-  $logger->log("We are doing a audio search with catID " .$cat);
-
 } elseif ($action == "search") {
   $template = "apiresult.tpl";
   $cat = $cat ?? 1000;
@@ -387,7 +384,8 @@ if($action == "tv") {
   $logger->log("We are doing a global search");
 }
 //check and deliver from cache if found!
-$cachename = sprintf("%s-%s", $action, $term);
+
+$cachename = sprintf("%s-%s-%s", $action, $term, $cat);
 
 $logger->logWithArray("Request: ", "DEBUG", $_GET);
 $logger->log("Cachename: " . $cachename, "DEBUG");
