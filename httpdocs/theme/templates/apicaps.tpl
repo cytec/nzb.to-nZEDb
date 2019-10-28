@@ -4,12 +4,12 @@
 	<limits max="100" default="100"/>
 
 	<registration available="no" open="no" />
-
 	<searching>
-		<search available="yes"/>
-		<tv-search available="yes"/>
-		<movie-search available="yes"/>
-		<audio-search available="yes"/>
+		<search available="yes" supportedParams="q"/>
+		<tv-search available="yes" supportedParams="q,rid,tvdbid,tvmazeid,imdbid,season,ep"/>
+		<movie-search available="yes" supportedParams="q,imdbid,tmdbid"/>
+		<music-search available="yes" supportedParams="q,artist,album"/>
+		<audio-search available="yes" supportedParams="q,artist,album"/>
 	</searching>
 
 	<categories>

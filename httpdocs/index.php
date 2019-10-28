@@ -180,6 +180,7 @@ function removeGarbage($garbage){
   $noshit = str_replace("-.", "-", $noshit);
   $noshit = str_replace(".-", "-", $noshit);
   $noshit = str_replace("..", ".", $noshit);
+  $noshit = rtrim($noshit, '.');
   
   return $noshit;
 }
@@ -281,20 +282,20 @@ function getTVRAGEdata($rid) {
             }
             global $regex; //"/".$regex."[\.\-]S(\d+)[\.\-]?(E(\d+))?([\.\-])/i";
             $regtit = removeGarbage($title);
-            $regex = "/^".$regtit."[\.\-]S(\d+)[\.\-]?(E(\d+))?([\.\-])/i";
+            $regex = "/^".$regtit.".*?[\.\-]S(\d+)[\.\-]?(E(\d+))?([\.\-])/i";
           if(isset($_GET["season"])) {
             $season=$_GET["season"];
             $logger->log("Setze season: " .$season);
         
             if(strlen($season) == 1){
 
-              $regex="/^".$regtit."[\.\-]S(0".$season.")[\.\-]?(E(\d+))?([\.\-])/i";
+              $regex="/^".$regtit.".*?[\.\-]S(0".$season.")[\.\-]?(E(\d+))?([\.\-])/i";
               $title.= " S0".$season;
 
             }
               if(strlen($season) == 2){ 
               $title.= " S".$_GET["season"].")";
-              $regex="/^".$regtit."[\.\-]S(".$season.")[\.\-]?(E(\d+))?([\.\-])/i";
+              $regex="/^".$regtit.".*?[\.\-]S(".$season.")[\.\-]?(E(\d+))?([\.\-])/i";
             }
           
               if(isset($_GET["ep"])){
@@ -302,13 +303,13 @@ function getTVRAGEdata($rid) {
               $ep = $_GET["ep"];
               if(strlen($ep)==1){
                 $title.="E0". $ep;
-                if(strlen($season) == 1){$regex="/^".$regtit."[\.\-]S(0".$season.")[\.\-]?(E(0".$ep."))?([\.\-])/i";}
-                if(strlen($season) == 2){$regex="/^".$regtit."[\.\-]S(".$season.")[\.\-]?(E(0".$ep."))?([\.\-])/i";}
+                if(strlen($season) == 1){$regex="/^".$regtit.".*?[\.\-]S(0".$season.")[\.\-]?(E(0".$ep."))?([\.\-])/i";}
+                if(strlen($season) == 2){$regex="/^".$regtit.".*?[\.\-]S(".$season.")[\.\-]?(E(0".$ep."))?([\.\-])/i";}
               }
               else{
                 $title.="E". $ep;
-                if(strlen($season) == 1){$regex="/^".$regtit."[\.\-]S(0".$season.")[\.\-]?(E(0".$ep."))?([\.\-])/i";}
-                if(strlen($season) == 2){$regex="/^".$regtit."[\.\-]S(".$season.")[\.\-]?(E(0".$ep."))?([\.\-])/i";}
+                if(strlen($season) == 1){$regex="/^".$regtit.".*?[\.\-]S(0".$season.")[\.\-]?(E(0".$ep."))?([\.\-])/i";}
+                if(strlen($season) == 2){$regex="/^".$regtit.".*?[\.\-]S(".$season.")[\.\-]?(E(0".$ep."))?([\.\-])/i";}
 
              }
         }
