@@ -116,7 +116,7 @@ if (isset($_GET["t"])) {
         $nzbto->login($user, $pass);
         $result = $nzbto->downloadNZB($_GET["guid"]);
         if($result) {
-	//change to check for empty whitespaces in passwords and strip them from name into the nzbheader -> change to str_replace
+	//change to check for empty whitespaces in passwords and strip them from name into the nzbheader
           $password = false;
           header('Content-type: application/x-nzb');
           if (preg_match('/{{?(.*)}}/', $result["header"], $matches)) {
@@ -343,9 +343,6 @@ function getTMDBData($tmdbid) {
   $logger->log("Final title: " . $title);
   return $title;
 }
-// variables needed for the entire script
-
-
 $term = "overview";
 if($action == "tv") {
   $template = "apiresult.tpl";
@@ -369,7 +366,16 @@ if($action == "tv") {
 } elseif ($action == "audio") {
   $template = "apiresult.tpl";
   $cat = $cat ?? 3000;
-  $term = isset($_GET["q"]) ? $_GET["q"] : "overview";  
+  if(!isset($_GET["artist"]) && !isset($_GET["album"])){
+    $term = isset($_GET["q"]) ? $_GET["q"] : "overview";
+    $logger->log("We are doing a audio search with catID " .$cat);
+  }
+  if(isset($_GET["artist"]) && isset($_GET["album"])){
+    $term=$_GET["artist"];
+    $term.=" ".$_GET["album"];
+    }
+
+  
   $logger->log("We are doing a audio search with catID " .$cat);
 
 } elseif ($action == "search") {
@@ -379,7 +385,6 @@ if($action == "tv") {
   $term = isset($_GET["imdbid"]) ? getIMDBData($_GET["imdbid"]) : $term;
   $logger->log("We are doing a global search");
 }
-
 //check and deliver from cache if found!
 $cachename = sprintf("%s-%s", $action, $term);
 
@@ -421,11 +426,11 @@ function isMatch($rls, $cat, $term){
   global $logger;
   global $regex;
   
-  //audio
+  //audio no filtering yet 
   if(substr($cat, 0, 1)==3 && trim($term) != "overview") {
     return true;
   }
-  //Movies
+  //Movies quiete accurate already 
   if(substr($cat, 0, 1)==2 && trim($term) != "overview") {
     $expr = "/.*" . preg_replace('/\s/','.',$term) . "(\s|\.)?(\d{4})?.*$/i";
     if(!preg_match($expr, $rls)){
@@ -435,8 +440,7 @@ function isMatch($rls, $cat, $term){
     return true;
   }
 
-  //TV
-  //if(substr($cat, 0, 1)==5 && trim($term) == "overview"){ return true;}
+  //TV damn accurate now
   if(substr($cat, 0, 1)==5 && trim($term) != "overview"){
     
     if(!preg_match($regex, $rls)){
